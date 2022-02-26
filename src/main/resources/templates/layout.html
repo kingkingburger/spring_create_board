@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lagn="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/plugin/mCustomScrollbar/jquery.mCustomScrollbar.min.css}" />
+    <title>JPA 게시판</title>
+</head>
+<body>
+<div class="fixed-navbar">
+    <div class="pull-left">
+        <h1 class="page-title">Board</h1>
+    </div>
+</div>
+<div id="wrapper">
+    <div class="main-content">
+        <div class="row row-inline-block small-spacing">
+            <div class="col-xs-12">
+                <div class="box-content">
+                    <div class="clearfix">
+                        <h4 class="box-title pull-left"></h4>
+                    </div>
+
+                    <!--/* 페이지 Content 영역 */-->
+                    <th:block layout:fragment="content"></th:block>
+
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <ul class="list-inline">
+                <li>2016 © NinjaAdmin.</li>
+            </ul>
+        </footer>
+    </div>
+</div>
+
+<script th:src="@{/scripts/moment.min.js}"></script>
+<script th:src="@{/scripts/jquery.min.js}"></script>
+<script th:src="@{/scripts/main.js}"></script>
+<script th:src="@{/plugin/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/plugin/mCustomScrollbar/jquery.mCustomScrollbar.concat.min.js}"></script>
+
+<!--/* JavaScript 영역 */-->
+<th:block layout:fragment="script"></th:block>
+</body>
+</html>
