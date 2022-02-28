@@ -28,7 +28,7 @@
             </div>
 
             <div class="btn_wrap text-center">
-                <a th:href="@{/board/list}" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+                <a th:href="javascript: void(0)" onclick="goList();" class="btn btn-default waves-effect waves-light">뒤로가기</a>
                 <button type="button" onclick="save();" class="btn btn-primary waves-effect waves-light">저장하기</button>
             </div>
         </form>
@@ -102,11 +102,17 @@
                 }
 
                 alert('저장되었습니다.');
-                location.href = '/board/list';
+                goList();
 
             }).catch(error => {
                 alert('오류가 발생하였습니다.');
             });
+        }
+
+        function goList(){
+            //id는 파라미터로 전달받은 게시글 번호(PK)를 의미
+            const id = /*[[${id}]]*/;
+            location.href = (id) ? '/board/list' + location.search: '/board/list';
         }
 
 

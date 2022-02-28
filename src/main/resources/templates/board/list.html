@@ -16,7 +16,7 @@
                    style="width: 300px;"/>
         </form>
 
-        <button type="button" onclick="findAll(1);"class="btn btn-primary">
+        <button type="button" onclick="findAll(1);" class="btn btn-primary">
             <span aria-hidden="true" class="glyphicon glyphicon-search"></span>
         </button>
     </div>
@@ -60,35 +60,36 @@
         /*<![CDATA[*/
         //페이지 로딩시점에 실행되는 함수
         window.onload = () => {
-            findAll(1);
+            setQueryStringParams();
+            findAll();
             addEnterSearchEvent();
         }
 
         /**
          * 키둬으 - 엔터 검색 이벤트 바인딩
          */
-         function addEnterSearchEvent(){
-             document.getElementById('keyword').addEventListener('keyup', (e) =>{
-                 if(e.keyCode === 13){
-                     findAll(1);
-                 }
-             });
+        function addEnterSearchEvent() {
+            document.getElementById('keyword').addEventListener('keyup', (e) => {
+                if (e.keyCode === 13) {
+                    findAll(1);
+                }
+            });
         }
 
-        async function getJson(uri, params){
-             if(params){
-                 uri = uri + '?' + new URLSearchParams(params).toString();
-             }
+        async function getJson(uri, params) {
+            if (params) {
+                uri = uri + '?' + new URLSearchParams(params).toString();
+            }
 
-             const response = await fetch(uri);
+            const response = await fetch(uri);
 
-             if(!response.ok){
-                 await response.json().then(error=>{
-                     throw error;
-                 });
-             }
+            if (!response.ok) {
+                await response.json().then(error => {
+                    throw error;
+                });
+            }
 
-             return await response.json();
+            return await response.json();
         }
 
         /**
@@ -117,16 +118,16 @@
         //
         //         response.list.forEach((obj, idx) => {
         //             html += `
-       	// 			<tr>
-  		// 				<td>${num--}</td>
-  		// 				<td class="text-left">
-  		// 					<a href="javascript: void(0);" onclick="goView(${obj.id})">${obj.title}</a>
-  		// 				</td>
-  		// 				<td>${obj.writer}</td>
-  		// 				<td>${moment(obj.createdDate).format('YYYY-MM-DD HH:mm:ss')}</td>
-  		// 				<td>${obj.hits}</td>
-       	// 			</tr>
-       	// 		`;
+        // 			<tr>
+        // 				<td>${num--}</td>
+        // 				<td class="text-left">
+        // 					<a href="javascript: void(0);" onclick="goView(${obj.id})">${obj.title}</a>
+        // 				</td>
+        // 				<td>${obj.writer}</td>
+        // 				<td>${moment(obj.createdDate).format('YYYY-MM-DD HH:mm:ss')}</td>
+        // 				<td>${obj.hits}</td>
+        // 			</tr>
+        // 		`;
         //         });
         //
         //         document.getElementById('list').innerHTML = html;
@@ -134,36 +135,65 @@
         //     });
         // }
 
-        function findAll(page){
+        function findAll(page) {
+            //쿼리 스트링에 포함된 페이지 번호(page)를 의미합니다.
+            // new URLSearchParams( )를 이용해서 location.search에 담긴 쿼리 스트링을 객체화한 후에,
+            // "page" 값을 숫자 형태로 변환한 값입니다.
+            // 만약, onload( ) 함수의 findAll( )과 같이 빈 값을 전달받는 경우에는
+            // Number( ) 함수에 의해 pageParam의 값은  "0"이 됩니다.
+            const pageParam = Number(new URLSearchParams(location.search).get('page'));
+
+            // true인 경우
+            // 1. 화면 하단의 페이지 번호를 클릭했을 때 (페이지를 이동했을 때)
+            // 2. 검색 버튼을 클릭했을 때
+            page = (page) ? page : ((pageParam) ? pageParam : 1);
+            //최초 접근하면 쿼리스트링이 비어있어서 pageParam 이 없다.
+            // 이전 페이지 정보를 유지해야 하는 상황에 해당 조건은 무조건 true
+            // 1. 페이지를 이동하고 새로고침을 실행했을 때
+            // 2. 검색 버튼을 클릭하고, 새로고침을 실행했을 때
+            // 3. 검색 버튼을 클릭하고, 페이지를 이동한 후에 새로고침을 실행했을 때
+            // 4. 게시글 상세 페이지 또는 수정 페이지에서 뒤로가기 버튼을 클릭했을 때
+            // 5. 게시글을 수정 또는 삭제했을 때
+
+
+
+
             const form = document.getElementById('searchForm');
             const params = {
-                page:page
+                page: page
                 , recordPerPage: 10
                 , pageSize: 10
                 , searchType: form.searchType.value
                 , keyword: form.keyword.value
             }
-            getJson('/api/boards', params).then(response=>{
-                if(!Object.keys(response).length){
-                    document.getElementById('list').innerHTML='<td colspan=5>등록된 게시글이 없습니다.</td>';
+            // params에 담긴 Key와 Value가 연결된 쿼리 스트링(Query String)이 담기게 됩니다.
+            const queryString = new URLSearchParams(params).toString();
+            //location.pathname = "/board/list"
+            const replaceUri = location.pathname + '?' + queryString;
+            history.replaceState({}, '', replaceUri);
+            //localhost:8080/board/list?page=15&recordPerPage=5&pageSize=10&searchType=&keyword=
+
+
+            getJson('/api/boards', params).then(response => {
+                if (!Object.keys(response).length) {
+                    document.getElementById('list').innerHTML = '<td colspan=5>등록된 게시글이 없습니다.</td>';
                     drawPages();
                     return false;
                 }
 
-                let html ='';
+                let html = '';
                 let num = response.params.pagination.totalRecordCount - ((response.params.page - 1) * response.params.recordPerPage);
-                            //448 - (1 * 10)
-                response.list.forEach((obj,idx) =>{
+                //448 - (1 * 10)
+                response.list.forEach((obj, idx) => {
+                    const viewUri = `/board/view/${obj.id}` + '?' + queryString;
                     html += `
                     <tr>
                         <td>${num--}</td>
-                        <td class="text-left">
-                            <a href="javascript:void(0)"; onclick="goView(${obj.id})">${obj.title}</a>
-                        </td>
+                        <td class="text-left"><a href="${viewUri}">${obj.title}</a></td>
                         <td>${obj.writer}</td>
                         <td>${moment(obj.createdDate).format('YYYY-MM-DD HH:mm:ss')}</td>
                         <td>${obj.hits}</td>
-                    </tr>
+                        </tr>
                     `;
                 });
 
@@ -217,6 +247,28 @@
             document.querySelector('.pagination').innerHTML = html;
         }
 
+        function setQueryStringParams() {
+
+            //쿼리 스트링이 없는, 즉 가장 처음 리스트 페이지로 접근한 경우를 의미합니다.
+            // "localhost:8080/board/list"로 접근했을 때는 파라미터 세팅이 의미가 없기에 로직을 종료
+            if (!location.search) {
+                return false;
+            }
+
+            const form = document.getElementById('searchForm');
+
+            // new URLSearchParams( location.search )를 이용해서 쿼리 스트링을 객체화하면,
+            // findAll( ) 함수의 params처럼 Key, Value 구조를 갖는 리터럴 객체로 변환
+            new URLSearchParams(location.search).forEach((value, key) => {
+
+                //폼 안에는 "page"라는 id 또는 name을 가진 엘리먼트가 없기 때문에 value 값을 설정하지 않습니다.
+                // 반대로, Key 값이 "searchType" 또는 "keyword"인 경우에는 if 문 안의 로직을 실행하게 되며,
+                // 검색 조건(searchType)과 키워드(keyword)에, 새로고침 이전에 입력한 value 값이 세팅됩니다.
+                if (form[key]) {
+                    form[key].value = value;
+                }
+            });
+        }
 
 
         /*]]>*/

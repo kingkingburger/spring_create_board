@@ -84,14 +84,15 @@
          * 뒤로가기
          */
         function goList() {
-            location.href = '/board/list';
+            //location.search는 URL의 쿼리 스트링을 리턴
+            location.href = '/board/list' + location.search;
         }
 
         /**
          * 수정하기
          */
         function goWrite() {
-            location.href = `/board/write?id=[[ ${id} ]]`;
+            location.href = `/board/write` + location.search + `id=[[ ${id} ]]`;
         }
 
         /**
